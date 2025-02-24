@@ -1,170 +1,102 @@
-<html lang="pt-BR">
-<head>
+<html><head>
   <meta charset="UTF-8">
-  <title>Loginha Blox - Blox Fruits Store</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="icon" href="logo.png">
-  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loginha Blox</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-  <div id="app" class="app-container">
-    <div class="background-overlay"></div>
-    <header class="text-center py-4 position-relative">
-      <div class="container">
-        <h1 class="text-white mb-3 site-title">
-          Loginha Blox
-        </h1>
-        
-        <nav class="navbar navbar-expand-lg navbar-dark justify-content-center">
-          <div class="navbar-nav">
-            <template v-if="!user">
-              <button @click="showLoginModal = true" class="btn btn-success me-2">Login</button>
-              <button @click="showRegisterModal = true" class="btn btn-info">Registrar</button>
-            </template>
-            <template v-else>
-              <div class="d-flex align-items-center">
-                <span class="badge bg-warning text-dark me-3">Saldo: R$ {{ user.balance.toFixed(2) }}</span>
-                
-                <div class="input-group" style="width: 250px;">
-                  <input 
-                    v-model="giftCardCode" 
-                    placeholder="Código de resgate" 
-                    class="form-control"
-                  >
-                  <button 
-                    @click="redeemGiftCard" 
-                    class="btn btn-success"
-                  >
-                    Resgatar
-                  </button>
-                </div>
 
-                <button @click="logout" class="btn btn-danger ms-2">Sair</button>
-              </div>
-              
-              <button @click="user.isAdmin ? showAdminPanel = true : null" 
-                      v-if="user.isAdmin" 
-                      class="btn btn-secondary me-2">
-                Painel Admin
-              </button>
-            </template>
-            <button @click="showCart = true" class="btn btn-outline-light position-relative ms-2">
-              🛒 Carrinho 
-              <span class="badge bg-danger ms-1">{{ cart.length }}</span>
-            </button>
-          </div>
-        </nav>
+  <header>
+    <h1>Loginha Blox</h1>
+    <img src="b8b31f84-f60e-4bdf-8b3d-07821c5255f2.png" alt="Loginha Blox Logo" style="max-width: 200px;">
+    <nav>
+      <ul>
+        <li><a href="#">Produtos</a></li>
+        <li><a href="#">Contato</a></li>
+        <li><a href="#">Carrinho (<span id="cart-count">0</span>)</a></li>
+        <li><a href="#" id="login-link">Login</a></li>
+        <li><a href="#" id="signup-link">Criar Conta</a></li>
+          <li id="welcome-message" style="display: none; color: yellow;"></li>
+        <li id="admin-link" style="display: none;"><a href="#" onclick="scrollToAdminPanel()">Admin</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="featured-products">
+      <h2>Produtos em Destaque</h2>
+      <div class="product-grid">
       </div>
-    </header>
+    </section>
 
-    <main class="container mt-4 products-container">
-      <section v-if="fruits.length > 0" class="row g-4">
-        <div v-for="fruit in fruits" :key="fruit.id" class="col-md-4">
-          <div class="card fruit-card animate__animated animate__fadeIn">
-            <img :src="fruit.image" :alt="fruit.name" class="card-img-top fruit-image">
-            <div class="card-body">
-              <h5 class="card-title">{{ fruit.name }} Fruit</h5>
-              <p class="card-text">{{ fruit.description }}</p>
-              <div class="d-flex justify-content-between">
-                <span class="badge bg-primary">R$ {{ fruit.price.toFixed(2) }}</span>
-                <span class="badge" :class="fruit.stock > 0 ? 'bg-success' : 'bg-danger'">
-                  {{ fruit.stock > 0 ? `Estoque: ${fruit.stock}` : 'Fora de Estoque' }}
-                </span>
-              </div>
-              <button 
-                @click="addToCart(fruit)" 
-                :disabled="fruit.stock === 0" 
-                class="btn btn-success w-100 mt-3"
-              >
-                {{ fruit.stock > 0 ? 'Adicionar ao Carrinho' : 'Indisponível' }}
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
+    <div id="login-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Login</h2>
+        <form id="login-form">
+          <label for="login-name">Nome:</label>
+          <input type="text" id="login-name" name="login-name" required>
+          <label for="login-password">Senha:</label>
+          <input type="password" id="login-password" name="login-password" required>
+          <button type="submit">Login</button>
+        </form>
+      </div>
+    </div>
 
-    <login-modal 
-      v-if="showLoginModal" 
-      @close="showLoginModal = false"
-      @login="handleLogin"
-    ></login-modal>
+    <div id="signup-modal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>Criar Conta</h2>
+        <form id="signup-form">
+          <label for="signup-name">Nome:</label>
+          <input type="text" id="signup-name" name="signup-name" required>
+          <label for="signup-password">Senha:</label>
+          <input type="password" id="signup-password" name="signup-password" required>
+          <button type="submit">Criar Conta</button>
+        </form>
+      </div>
+    </div>
 
-    <register-modal 
-      v-if="showRegisterModal"
-      @close="showRegisterModal = false"
-      @register="handleRegister"
-    ></register-modal>
+    <div id="admin-panel" style="display: none;">
+      <h2>Painel de Administração</h2>
+      <form id="add-product-form">
+        <label for="product-name">Nome do Produto:</label>
+        <input type="text" id="product-name" name="product-name" required>
 
-    <cart-modal 
-      v-if="showCart"
-      :cart="cart"
-      :total="cartTotal"
-      @close="showCart = false"
-      @remove="removeFromCart"
-      @checkout="checkout"
-    ></cart-modal>
+        <label for="product-price">Preço:</label>
+        <input type="number" id="product-price" name="product-price" required>
 
-    <admin-panel
-      v-if="showAdminPanel"
-      :fruits="fruits"
-      @close="closeAdminPanel"
-      @add-fruit="addFruit"
-      @update-fruit="updateFruit"
-      @delete-fruit="deleteFruit"
-    >
-      <template v-slot:extra-buttons>
-        <div class="mt-4">
-          <h5 class="text-light">Configurar Códigos de Resgate</h5>
-          <div class="row">
-            <div class="col">
-              <input 
-                v-model="newGiftCardConfig.code" 
-                placeholder="Código de Resgate" 
-                class="form-control mb-2"
-              >
-              <input 
-                v-model.number="newGiftCardConfig.value" 
-                type="number" 
-                placeholder="Valor do Resgate" 
-                class="form-control mb-2"
-              >
-              <button @click="$root.createGiftCardConfig" class="btn btn-success">
-                Adicionar Código de Resgate
-              </button>
-            </div>
-            <div class="col">
-              <table class="table table-dark">
-                <thead>
-                  <tr>
-                    <th>Código</th>
-                    <th>Valor</th>
-                    <th>Ações</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-for="config in $root.giftCardConfigs" :key="config.code">
-                    <td>{{ config.code }}</td>
-                    <td>R$ {{ config.value.toFixed(2) }}</td>
-                    <td>
-                      <button @click="$root.deleteGiftCardConfig(config.code)" class="btn btn-sm btn-danger">Excluir</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      </template>
-    </admin-panel>
-  </div>
+        <label for="product-stock">Estoque:</label>
+        <input type="number" id="product-stock" name="product-stock" required>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="storage.js"></script>
-  <script src="app.js"></script>
-</body>
-</html>
+        <label for="product-image">URL da Imagem:</label>
+        <input type="text" id="product-image" name="product-image" required>
+
+        <button type="submit">Adicionar Produto</button>
+      </form>
+
+      <h3>Lista de Produtos</h3>
+      <table id="product-table">
+        <thead>
+          <tr>
+            <th>Imagem</th>
+            <th>Nome</th>
+            <th>Preço</th>
+            <th>Estoque</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer>
+    <p>© 2024 Loginha Blox. Todos os direitos reservados.</p>
+  </footer>
+
+
+</body></html>
