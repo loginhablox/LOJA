@@ -239,7 +239,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function getDefaultProducts() {
     const initialProducts = [
-      { name: 'ShadowFruit', price: 20.00, stock: 5, image: 'ShadowFruit.webp' },
+      { name: 'ShadowFruit', price: 20.000000000000000, stock: 5, image: 'ShadowFruit.webp' },
       { name: 'BarrierFruit', price: 35.50, stock: 3, image: 'BarrierFruit.webp' },
       { name: 'RocketFruit', price: 25.00, stock: 7, image: 'RocketFruit.webp' },
       { name: 'LoveFruit', price: 40.00, stock: 2, image: 'LoveFruit.webp' },
